@@ -1,41 +1,69 @@
 from django.shortcuts import render
-from django.utils import timezone
-from .models import Post
-from django.shortcuts import render, get_object_or_404
-from .forms import PostForm
-from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
+from django.template import RequestContext
+from django.contrib.auth.models import User
+from django.http import Http404
+from blog.models import Todo
 
-def post_list(request):
-    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
-    return render(request, 'blog/post_list.html', {'posts': posts})
+def todolist(request):
+    todolist = Todo.objects.filter(flag=1)
+    finishtodos = Todo.objects.filter(flag=0)
+    return render(request, 'simpleTodo.html',{
+        'todolist':todolist, 'finishtodos':finishtodos
+    })
 
-def post_detail(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    return render(request, 'blog/post_detail.html', {'post': post})
+def todofinish(request):
+    id=request.GET.get('id','')
+    # if id== '':
+        # return HttpResponseRedirect('/todolist')
 
-def post_new(request):
-    if request.method == "POST":
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.published_date = timezone.now()
-            post.save()
-            return redirect('post_detail', pk=post.pk)
+    todo = Todo.objects.get(id=id)
+    if todo.flag == '1':
+        todo.flag = '0'
+        todo.save()
+    return HttpResponseRedirect('/todolist')
+
+def todoback(request):
+    id=request.GET.get('id','')
+    if id=='':
+        return HttpResponseRedirect('/todolist')
+    todo = Todo.objects.get(id=id)
+    if todo.flag == '0':
+        todo.flag = '1'
+        todo.save()
+    return HttpResponseRedirect('/todolist')
+
+def todoadd(request):
+    if request.method=='POST':
+        todoc = request.POST['todo']
+        priority = request.POST['priority']
+        user = User.objects.get(id='1')
+        todo = Todo(user=user, todo=todoc, priority=priority,flag='1')
+        todo.save()
+        todolist = Todo.objects.filter(flag=1)
+        finishtodos = Todo.objects.filter(flag=0)
+        return render(request, 'simpleTodo.html',{
+            'todolist':todolist, 'finishtodos':finishtodos
+        })
     else:
-        form = PostForm()
-    return render(request, 'blog/post_edit.html', {'form': form})
+        todolist = Todo.objects.filter(flag=1)
+        finishtodos = Todo.objects.filter(flag=0)
+        return render(request, 'simpleTodo.html',{
+            'todolist':todolist, 'finishtodos':finishtodos
+        })
 
-def post_edit(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.published_date = timezone.now()
-            post.save()
-            return redirect('post_detail', pk=post.pk)
-    else:
-        form = PostForm(instance=post)
-    return render(request, 'blog/post_edit.html', {'form': form})
+def tododelete(request):
+    id = request.GET.get('id','')
+    if id=='':
+        return HttpResponseRedirect('/todolist')
+    try:
+        todo = Todo.objects.get(id=id)
+    except Exception:
+        raise Http404
+    if todo:
+        todo.delete()
+        return HttpResponseRedirect('/todolist')
+    todolist = Todo.objects.filter(flag=1)
+    return render(request, 'simpleTodo.html',{
+        'todolist':todolist
+    })
