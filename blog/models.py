@@ -13,5 +13,5 @@ class Todo(models.Model):
     def __unicode__(self):
         return u'%d %s %s'%(self.id, self.todo, self.flag)
 
-class Meta:
-    ordering = ['subject']
+    class Meta:
+        ordering = ['subject','deadline']
