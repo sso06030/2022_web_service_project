@@ -2,54 +2,44 @@
 {% block mainbody %}
 
 <div class="container">
-  <h3>To do
-    <span class="badge badge-dark"
-    style="cursor: pointer"
-    data-toggle="modal"
-    data-target="#exampleModal">Add</span></h3>
 
-    <!-- Modal -->
-    <div class="modal fade"
-    id="exampleModal" tabindex="-1"
-    rold="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Add a Card</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
+
+  <h3>Form</h3>
+    <div class="card">
+      <div class="card-body">
+        <form action="/todolist/add" method="POST">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="exampleInputSubject" name="subject">Subject </label>
+            <input type="text" class="form-control" id="exampleInputSubject" name="subject">
           </div>
-          <div class="modal-body">
-            <form action="/todolist/add" method="POST">
-              {% csrf_token %}
-              <div class="form-group">
-                <label for="exampleFormControlTextarea1" name="todo">To do </label>
-                <input type="text" class="form-control" id="exampleFormControlTextarea1" name="todo">
-              </div>
-              <div class="form-group">
-                <label for="exampleInputPriority" name="priority">Priority </label>
-                <input type="number" class="form-control" id="exampleInputPriority" name="priority">
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <input type="submit" value="add" class="btn btn-promary">
-              </div>
-            </form>
+          <div class="form-group">
+            <label for="exampleFormControlTextarea1" name="todo">To do </label>
+            <input type="text" class="form-control" id="exampleFormControlTextarea1" name="todo">
           </div>
-        </div>
+          <div class="form-group">
+            <label for="exampleFormDate" name="deadline">Deadline</label>
+            <input type="text" class="form-control" id="exampleFormDate" name="deadline" autocomplete="off" >
+          </div>
+          <div class="card-footer">
+            <input type="submit" value="add" class="btn btn-primary">
+          </div>
+        </form>
+
       </div>
     </div>
 
+    <br>
+    <h3>Class Todo</h3>
     <div class="row row-cols-4">
       {% for todo in todolist %}
       <div class="col">
         <div class="card"
-          style="width: 15rem; height:14rem">
+          style="width:15rem; height:14rem">
           <div class="card-body">
-            <h5 class="card-title">{{todo.pubtime}}</h5>
+            <h5 class="card-title">{{todo.subject}}</h5>
             <p class="card-text">{{todo.todo}}</p>
+            <p class="card-text">{{todo.deadline|date}}</p>
             <a href="todolist/todofinish/?id={{todo.id}}" class="btn btn-outline-success">Finish</a>
             <a href="todolist/tododelete/?id={{todo.id}}" class="btn btn-outline-danger">Delete</a>
           </div>
@@ -67,8 +57,9 @@
         <div class="card"
           style="width: 15rem; height:14rem">
           <div class="card-body">
-            <h5 class="card-title">{{todo.pubtime}}</h5>
+            <h5 class="card-title">{{todo.subject}}</h5>
             <p class="card-text">{{todo.todo}}</p>
+            <p class="card-text">{{todo.deadline|date}}</p>
             <a href="todolist/todoback/?id={{todo.id}}" class="btn btn-outline-success">Recover</a>
             <a href="todolist/tododelete/?id={{todo.id}}" class="btn btn-outline-danger">Delete</a>
           </div>
